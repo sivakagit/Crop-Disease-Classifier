@@ -5,17 +5,19 @@ import numpy as np
 import json
 import os
 from werkzeug.utils import secure_filename
-from utils import enable_tf_warnings
+from .utils import enable_tf_warnings  # ✅ fixed import path
 
 # ---------------- SETUP ---------------- #
 enable_tf_warnings()
 app = Flask(__name__)
 app.secret_key = "crop-disease-secret"  # required for session history
 
+# Use absolute project base directory (Render-safe)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "../models/crop_disease_model_best.h5")
-LABELS_PATH = os.path.join(BASE_DIR, "../models/class_indices.json")
-INFO_PATH = os.path.join(BASE_DIR, "../data/disease_info.json")
+PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))  # backend/
+MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "crop_disease_model_best.h5")
+LABELS_PATH = os.path.join(PROJECT_ROOT, "models", "class_indices.json")
+INFO_PATH = os.path.join(PROJECT_ROOT, "data", "disease_info.json")
 
 # ---------------- LOAD MODEL ---------------- #
 print("🚀 Loading trained model...")
@@ -193,7 +195,6 @@ def predict():
         else:
             color = "mild"
 
-        # update session history
         from datetime import datetime
         history = session.get("history", [])
         history.insert(0, {
@@ -201,17 +202,19 @@ def predict():
             "confidence": confidence,
             "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
-        session["history"] = history[:5]  # keep only last 5
+        session["history"] = history[:5]
 
         print(f"🧠 Predicted: {label} ({confidence:.2f}%)")
 
-        return render_template_string(HTML_TEMPLATE,
-                                      prediction=label,
-                                      confidence=confidence,
-                                      description=desc,
-                                      remedy=remedy,
-                                      color=color,
-                                      history=session["history"])
+        return render_template_string(
+            HTML_TEMPLATE,
+            prediction=label,
+            confidence=confidence,
+            description=desc,
+            remedy=remedy,
+            color=color,
+            history=session["history"]
+        )
 
     except Exception as e:
         return render_template_string(HTML_TEMPLATE, prediction=f"Error: {e}")
@@ -222,4 +225,4 @@ def predict():
 
 # ---------------- MAIN ---------------- #
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
