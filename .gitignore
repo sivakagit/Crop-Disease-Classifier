@@ -39,6 +39,7 @@ venv.bak/
 dataset/*
 !dataset/.gitkeep
 data/
+!data/.gitkeep
 datasets/
 *.csv
 *.tsv
