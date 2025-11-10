@@ -2,30 +2,24 @@ import os
 import random
 from pathlib import Path
 from PIL import Image
-import shutil
 
 # ---------------- CONFIG ---------------- #
-BASE_DIR = Path(__file__).resolve().parent.parent  # E:/Crop-disease-classifier
-RAW_DIR = BASE_DIR / "data" / "PlantVillage"       # Source images
-OUT_DIR = BASE_DIR / "data" / "dataset"                     # Output folder (completely separate!)
-
-CLASSES = [
-    'Tomato___Late_blight',
-    'Tomato___Early_blight',
-    'Tomato___Leaf_Mold',
-    'Tomato___healthy',
-    'Potato___Early_blight',
-    'Potato___Late_blight',
-    'Potato___healthy'
-]
+BASE_DIR = Path(__file__).resolve().parent.parent  # e.g., E:/Crop-disease-classifier/backend
+RAW_DIR = BASE_DIR / "data" / "PlantVillage"   # All class folders live here
+OUT_DIR = BASE_DIR / "data" / "dataset"                    # Output folder for processed dataset
 
 IMG_SIZE = (224, 224)
 TRAIN_SPLIT = 0.8
 VAL_SPLIT = 0.1
 random.seed(42)
 
+# ---------------- AUTO-DETECT CLASSES ---------------- #
+CLASSES = [d.name for d in RAW_DIR.iterdir() if d.is_dir()]
+print(f"✅ Detected {len(CLASSES)} classes: {CLASSES}")
+
 # ---------------- CREATE FOLDERS ---------------- #
 def create_dirs():
+    """Creates train/val/test directories for all classes."""
     for split in ['train', 'val', 'test']:
         for cls in CLASSES:
             path = OUT_DIR / split / cls
@@ -34,6 +28,7 @@ def create_dirs():
 
 # ---------------- IMAGE PROCESSING ---------------- #
 def process_images():
+    """Resizes and splits PlantVillage dataset into train/val/test."""
     create_dirs()
     for cls in CLASSES:
         src_folder = RAW_DIR / cls
@@ -67,13 +62,11 @@ def process_images():
                 split = 'test'
 
             out_path = OUT_DIR / split / cls / img_path.name
-            # Save resized copy (not overwrite!)
             img.save(out_path)
 
-        # ✅ Optional: verify original folder remains untouched
-        print(f"✅ Processed class: {cls} | Original images preserved.")
+        print(f"✅ Processed class: {cls} | {n} images resized & split.")
 
-    print("\n✅ Dataset processed and split safely into train/val/test!")
+    print("\n🎉 Dataset processed and split safely into train/val/test!")
     print(f"📂 Final output at: {OUT_DIR.resolve()}")
 
 # ---------------- MAIN ---------------- #

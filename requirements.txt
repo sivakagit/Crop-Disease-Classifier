@@ -1,0 +1,27 @@
+# Core
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+
+# Choose one ML framework (uncomment what you use)
+tensorflow<=2.15.0
+# torch
+# torchvision
+# torchaudio
+
+# Image processing
+opencv-python
+Pillow
+
+# Utilities
+tqdm
+joblib
+albumentations
+scipy
+
+# Backend / serving
+Flask
+uvicorn
+fastapi
