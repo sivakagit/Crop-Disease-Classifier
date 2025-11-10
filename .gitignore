@@ -1,119 +1,49 @@
-# ──────────────────────────────
-# VS Code
-# ──────────────────────────────
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/launch.json
-!.vscode/tasks.json
-.history/
-*.code-workspace
-
-# ──────────────────────────────
-# Python / Jupyter
-# ──────────────────────────────
+# === Python ===
 __pycache__/
-*.py[cod]
-*.so
-*.egg
-*.egg-info/
-*.manifest
-*.spec
-.ipynb_checkpoints/
-*.ipynb_checkpoints/
+*.pyc
+*.pyo
+*.pyd
+*.log
 
-# ──────────────────────────────
-# Virtual environments
-# ──────────────────────────────
-.env
-.venv
+# === Virtual Environments ===
+.venv/
 venv/
 env/
 ENV/
-env.bak/
-venv.bak/
+*.egg-info/
 
-# ──────────────────────────────
-# Dataset and large data files
-# ──────────────────────────────
-dataset/*
-!dataset/.gitkeep
-!data/.gitkeep
-datasets/
-*.csv
-*.tsv
-*.xlsx
-*.jsonl
-*.parquet
-*.zip
-*.tar.gz
-*.rar
-
-# ──────────────────────────────
-# Model artifacts / training outputs
-# ──────────────────────────────
-*.h5
-*.hdf5
-*.pkl
-*.pt
-*.pth
-*.onnx
-*.joblib
-*.ckpt
-*.tflite
-checkpoints/
-runs/
-logs/
-wandb/
-mlruns/
-output/
-outputs/
-
-# ──────────────────────────────
-# Cache and temporary files
-# ──────────────────────────────
-*.log
-*.tmp
-*.bak
-*.swp
-*.swo
-*.out
-*.npy
-*.npz
-*.cache/
-__MACOSX/
-
-# ──────────────────────────────
-# OS / Editor files
-# ──────────────────────────────
+# === Jupyter & VS Code ===
+.ipynb_checkpoints/
+.vscode/
+.history/
 .DS_Store
-Thumbs.db
-desktop.ini
 
-# ──────────────────────────────
-# Images and media
-# ──────────────────────────────
+# === Build & Output ===
+build/
+dist/
+*.spec
+
+# === ML Data & Checkpoints ===
+data/
+datasets/
+backend/data/dataset/
+backend/data/PlantVillage/
+checkpoints/
+experiments/
+outputs/
+runs/
+
+# === Images & Temporary Files ===
 *.jpg
 *.jpeg
 *.png
 *.gif
-*.bmp
-*.tiff
-*.svg
 
-# ──────────────────────────────
-# Node / Web dependencies (if used)
-# ──────────────────────────────
-node_modules/
-dist/
-build/
-coverage/
+# === Model Files ===
+# (Keep .h5 tracked via LFS, ignore local temp models)
+*.h5
+!backend/models/crop_disease_model_best.h5
 
-# ──────────────────────────────
-# Archives
-# ──────────────────────────────
-*.zip
-*.7z
-*.tar
-*.gz
-*.rar
+# === System Files ===
+Thumbs.db
+desktop.ini

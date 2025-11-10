@@ -1,1 +1,18 @@
+# === Git LFS (Large File Storage) ===
 *.h5 filter=lfs diff=lfs merge=lfs
+*.hdf5 filter=lfs diff=lfs merge=lfs
+*.keras filter=lfs diff=lfs merge=lfs
+*.pt filter=lfs diff=lfs merge=lfs
+*.pkl filter=lfs diff=lfs merge=lfs
+*.joblib filter=lfs diff=lfs merge=lfs
+*.onnx filter=lfs diff=lfs merge=lfs
+# === Images and Media (optional to LFS) ===
+*.jpg filter=lfs diff=lfs merge=lfs
+*.jpeg filter=lfs diff=lfs merge=lfs
+*.png filter=lfs diff=lfs merge=lfs
+# === Keep text files in normal Git ===
+*.py text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
