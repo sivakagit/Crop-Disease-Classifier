@@ -1,0 +1,119 @@
+# ──────────────────────────────
+# VS Code
+# ──────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.history/
+*.code-workspace
+
+# ──────────────────────────────
+# Python / Jupyter
+# ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# ──────────────────────────────
+# Virtual environments
+# ──────────────────────────────
+.env
+.venv
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ──────────────────────────────
+# Dataset and large data files
+# ──────────────────────────────
+dataset/*
+!dataset/.gitkeep
+data/
+datasets/
+*.csv
+*.tsv
+*.xlsx
+*.jsonl
+*.parquet
+*.zip
+*.tar.gz
+*.rar
+
+# ──────────────────────────────
+# Model artifacts / training outputs
+# ──────────────────────────────
+*.h5
+*.hdf5
+*.pkl
+*.pt
+*.pth
+*.onnx
+*.joblib
+*.ckpt
+*.tflite
+checkpoints/
+runs/
+logs/
+wandb/
+mlruns/
+output/
+outputs/
+
+# ──────────────────────────────
+# Cache and temporary files
+# ──────────────────────────────
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.out
+*.npy
+*.npz
+*.cache/
+__MACOSX/
+
+# ──────────────────────────────
+# OS / Editor files
+# ──────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ──────────────────────────────
+# Images and media
+# ──────────────────────────────
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+
+# ──────────────────────────────
+# Node / Web dependencies (if used)
+# ──────────────────────────────
+node_modules/
+dist/
+build/
+coverage/
+
+# ──────────────────────────────
+# Archives
+# ──────────────────────────────
+*.zip
+*.7z
+*.tar
+*.gz
+*.rar
