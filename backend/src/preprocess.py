@@ -1,12 +1,13 @@
 import os
+import json
 import random
 from pathlib import Path
 from PIL import Image
 
 # ---------------- CONFIG ---------------- #
 BASE_DIR = Path(__file__).resolve().parent.parent  # e.g., E:/Crop-disease-classifier/backend
-RAW_DIR = BASE_DIR / "data" / "PlantVillage"   # All class folders live here
-OUT_DIR = BASE_DIR / "data" / "dataset"                    # Output folder for processed dataset
+RAW_DIR = BASE_DIR / "data" / "PlantVillage"       # Source dataset
+OUT_DIR = BASE_DIR / "data" / "dataset"            # Output processed dataset
 
 IMG_SIZE = (224, 224)
 TRAIN_SPLIT = 0.8
@@ -68,6 +69,12 @@ def process_images():
 
     print("\n🎉 Dataset processed and split safely into train/val/test!")
     print(f"📂 Final output at: {OUT_DIR.resolve()}")
+
+    # Save the class names for reference
+    labels_path = OUT_DIR / "class_names.json"
+    with open(labels_path, "w") as f:
+        json.dump(CLASSES, f, indent=4)
+    print(f"🧾 Saved class names to: {labels_path}")
 
 # ---------------- MAIN ---------------- #
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 # backend/src/train.py
 import os
+import json
 import tensorflow as tf
 from tensorflow.keras.applications import MobileNetV2
 from tensorflow.keras.layers import Dense, Dropout, GlobalAveragePooling2D
@@ -7,10 +8,12 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
+from utils import enable_tf_warnings
+enable_tf_warnings()
 
-import tensorflow as tf
-
-# Enable memory growth for GPU
+# ======================================
+# GPU CONFIGURATION
+# ======================================
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
     try:
@@ -18,13 +21,15 @@ if gpus:
             tf.config.experimental.set_memory_growth(gpu, True)
         print("✅ GPU detected and memory growth enabled!")
     except RuntimeError as e:
-        print(e)
+        print(f"⚠️ GPU memory setup error: {e}")
+else:
+    print("⚠️ No GPU detected, running on CPU.")
 
 # ======================================
-# PATH CONFIG
+# PATH CONFIGURATION
 # ======================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # backend/
-DATASET_BASE = os.path.join(BASE_DIR, "data", "dataset")  # preprocessed dataset folder
+DATASET_BASE = os.path.join(BASE_DIR, "data", "dataset")  # dataset folder
 TRAIN_DIR = os.path.join(DATASET_BASE, "train")
 VAL_DIR = os.path.join(DATASET_BASE, "val")
 MODEL_DIR = os.path.join(BASE_DIR, "models")
@@ -36,7 +41,7 @@ print(f"📂 Validation directory: {VAL_DIR}")
 print(f"📁 Models will be saved in: {MODEL_DIR}")
 
 # ======================================
-# IMAGE GENERATORS
+# IMAGE DATA GENERATORS
 # ======================================
 train_datagen = ImageDataGenerator(
     rescale=1.0 / 255,
@@ -65,14 +70,23 @@ val_gen = val_datagen.flow_from_directory(
 
 # Automatically detect number of classes
 num_classes = len(train_gen.class_indices)
-print(f"\n✅ Detected {num_classes} classes: {list(train_gen.class_indices.keys())}")
+print(f"\n✅ Detected {num_classes} classes:")
+print(list(train_gen.class_indices.keys()))
+
+# ======================================
+# SAVE CLASS LABEL MAPPING
+# ======================================
+labels_path = os.path.join(MODEL_DIR, "class_indices.json")
+with open(labels_path, "w") as f:
+    json.dump(train_gen.class_indices, f, indent=4)
+print(f"🧾 Saved label mapping to: {labels_path}")
 
 # ======================================
 # MODEL SETUP (MobileNetV2)
 # ======================================
 base_model = MobileNetV2(weights="imagenet", include_top=False, input_shape=(224, 224, 3))
 
-# Freeze base layers for transfer learning
+# Freeze convolutional base for transfer learning
 for layer in base_model.layers:
     layer.trainable = False
 
@@ -86,7 +100,7 @@ predictions = Dense(num_classes, activation="softmax")(x)
 model = Model(inputs=base_model.input, outputs=predictions)
 
 # ======================================
-# COMPILE & TRAIN
+# COMPILE MODEL
 # ======================================
 model.compile(
     optimizer=Adam(learning_rate=1e-4),
@@ -94,6 +108,9 @@ model.compile(
     metrics=["accuracy"]
 )
 
+# ======================================
+# CALLBACKS
+# ======================================
 checkpoint_best = ModelCheckpoint(
     os.path.join(MODEL_DIR, "crop_disease_model_best.h5"),
     monitor="val_accuracy",
@@ -127,6 +144,8 @@ history = model.fit(
 # ======================================
 final_model_path = os.path.join(MODEL_DIR, "crop_disease_model_final.h5")
 model.save(final_model_path)
-print(f"\n✅ Training complete!")
+
+print("\n✅ Training complete!")
 print(f"💾 Best model saved at: {os.path.join(MODEL_DIR, 'crop_disease_model_best.h5')}")
 print(f"💾 Final model saved at: {final_model_path}")
+print(f"🧾 Class mapping saved at: {labels_path}")

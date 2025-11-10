@@ -1,92 +1,79 @@
-# backend/src/utils.py
 import os
-import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
-
-def create_data_generators(train_dir, val_dir=None, target_size=(224, 224), batch_size=32):
-    """
-    Creates TensorFlow ImageDataGenerators for training and validation.
-    Automatically rescales images and applies light augmentation.
-    """
-    train_datagen = ImageDataGenerator(
-        rescale=1.0/255,
-        rotation_range=15,
-        width_shift_range=0.1,
-        height_shift_range=0.1,
-        horizontal_flip=True,
-        validation_split=0.2 if val_dir is None else 0.0
-    )
-
-    if val_dir is None:
-        train_gen = train_datagen.flow_from_directory(
-            train_dir,
-            target_size=target_size,
-            batch_size=batch_size,
-            class_mode='categorical',
-            subset='training'
-        )
-
-        val_gen = train_datagen.flow_from_directory(
-            train_dir,
-            target_size=target_size,
-            batch_size=batch_size,
-            class_mode='categorical',
-            subset='validation'
-        )
-    else:
-        train_gen = train_datagen.flow_from_directory(
-            train_dir,
-            target_size=target_size,
-            batch_size=batch_size,
-            class_mode='categorical'
-        )
-
-        val_gen = ImageDataGenerator(rescale=1.0/255).flow_from_directory(
-            val_dir,
-            target_size=target_size,
-            batch_size=batch_size,
-            class_mode='categorical'
-        )
-
-    return train_gen, val_gen
-
-
-def plot_training_history(history, save_path=None):
-    """
-    Plots model training accuracy and loss curves.
-    """
-    acc = history.history.get('accuracy')
-    val_acc = history.history.get('val_accuracy')
-    loss = history.history.get('loss')
-    val_loss = history.history.get('val_loss')
-
-    plt.figure(figsize=(10, 4))
-
-    plt.subplot(1, 2, 1)
-    plt.plot(acc, label='Training Accuracy')
-    plt.plot(val_acc, label='Validation Accuracy')
-    plt.legend()
-    plt.title('Model Accuracy')
-
-    plt.subplot(1, 2, 2)
-    plt.plot(loss, label='Training Loss')
-    plt.plot(val_loss, label='Validation Loss')
-    plt.legend()
-    plt.title('Model Loss')
-
-    plt.tight_layout()
-    if save_path:
-        plt.savefig(save_path)
-    plt.show()
 
 
 def load_trained_model(model_path):
     """
-    Loads a saved Keras model (.h5 file).
+    Loads a trained TensorFlow/Keras model from the given path.
+    Automatically enables memory growth for GPU if available.
     """
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}")
-    return tf.keras.models.load_model(model_path)
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+            print("✅ GPU detected and memory growth enabled!")
+        except RuntimeError as e:
+            print(f"⚠️ GPU memory setup error: {e}")
+    else:
+        print("⚠️ No GPU detected, running on CPU.")
+
+    print(f"📦 Loading model from: {model_path}")
+    model = tf.keras.models.load_model(model_path)
+    print("✅ Model loaded successfully!\n")
+    return model
+
+
+def create_data_generators(train_dir, val_dir, target_size=(224, 224), batch_size=32):
+    """
+    Creates ImageDataGenerators for training and validation.
+    Used by both train.py and evaluate.py for consistency.
+    """
+    train_datagen = ImageDataGenerator(
+        rescale=1.0 / 255,
+        rotation_range=20,
+        zoom_range=0.2,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        horizontal_flip=True,
+    )
+
+    val_datagen = ImageDataGenerator(rescale=1.0 / 255)
+
+    train_gen = train_datagen.flow_from_directory(
+        train_dir,
+        target_size=target_size,
+        batch_size=batch_size,
+        class_mode="categorical",
+    )
+
+    val_gen = val_datagen.flow_from_directory(
+        val_dir,
+        target_size=target_size,
+        batch_size=batch_size,
+        class_mode="categorical",
+        shuffle=False,
+    )
+
+    print(f"✅ Training samples: {train_gen.samples}, Validation samples: {val_gen.samples}\n")
+    return train_gen, val_gen
+
+
+def enable_tf_warnings(state=False):
+    """
+    Enables or disables TensorFlow warnings for cleaner console output.
+    """
+    import logging
+    import warnings
+
+    if not state:
+        tf.get_logger().setLevel("ERROR")
+        warnings.filterwarnings("ignore")
+        os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+        logging.getLogger("tensorflow").disabled = True
+        print("🔇 TensorFlow warnings suppressed.")
+    else:
+        tf.get_logger().setLevel("INFO")
+        logging.getLogger("tensorflow").disabled = False
+        print("🔊 TensorFlow warnings enabled.")
